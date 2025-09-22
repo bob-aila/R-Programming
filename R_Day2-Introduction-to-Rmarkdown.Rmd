@@ -1,0 +1,762 @@
+---
+title: "Introduction to R Programming"
+author: "BPA"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Operators, variables and data types in R
+* To insert a new chunk, use the shortcut `Crtl + Alt + I`.
+* We can `source` an `.R` in a `.R` or `.Rmd`. It is useful when you are building an app and you want all your written functions to be in one file.
+```{r}
+source("R_day1-R-fundamentals.R")
+```
+
+Note that only the `print(...)`s from the `.R` file are displayed.
+
+## Day 2: Data types
+```{r}
+set.seed(123) # reproducibility (fixing the randomness)
+dice = sample(6, size = 100, replace = TRUE)
+dice
+
+length(dice)
+```
+
+If I want to check which number in `dice` is equal to 6, I use the logical operator `==`.
+```{r}
+dice == 6
+
+# use the sum function to calculate the number of 6 in the variable dice.
+sum(dice == 6) # gives the count of 6 in dice
+mean(dice == 6) # gives the proportion of 6 in dice
+
+# use table function to get counts for all categories
+table(dice)
+# prop.table to calculate proportions for all categories in dice.
+prop.table(table(dice))
+```
+
+### Generate a vector using `rep`
+```{r}
+(names3x <- rep("Lema", 3))
+(x <- rep(0, 10))
+```
+
+**Exercise:**
+Write an R code to generate 1 1 1 1 0 0 0 0 0 1 2 3 4 6 5 4 3 2 0 0 0 0 2 2 2 2 2 2 2 -1
+```{r}
+c(rep(1, 4), rep(0, 5), 1:4, 6:2, rep(0, 4), rep(2, 7), 2-3)
+
+c(rep(c(1, 0), c(4, 5)), 1:4, 6:2, rep(c(0, 2), c(4, 7)), -1)
+```
+
+### Operations on vectors
+```{r}
+vect1 <- c(2, 3, 5, 6, 8)
+vect2 <- c(1, 3, 5, 8, 10)
+
+vect1 + vect2 # add
+vect1 * vect2 # element-wise multiplication
+vect1 / vect2 # element-wise division
+vect1 %*% vect2 # dot product
+# multiplication by a scalar
+k = 2
+k * vect1
+
+vect1 ** k
+vect1 %% k
+vect1 - k
+vect1 + k
+vect1 %/% k
+```
+
+### 
+```{r}
+mean(vect1)
+min(vect1)
+max(vect1)
+range(vect1)
+summary(vect1)
+```
+
+
+### Vectors from distributions
+#### Normal distribution
+A variable $X$ is normally distributed, or $X\sim N(\mu, \sigma^2)$, if:
+
+$$
+f_X(x) = \frac{1}{\sqrt{2\pi\sigma^2}}\exp\left\{-\frac{(x-\mu)^2}{2\sigma^2}\right\}, \quad x\in\mathbb{R}.
+$$
+Note that $\mu$ and $\sigma$ are respectively population mean and standard deviation.
+
+From those two parameter we can be able to generate a sample `x_rnorm`.
+
+```{r}
+set.seed(123)
+(x_norm <- rnorm(150, 60, 10))
+hist(x_norm, col = "pink")
+abline(v = mean(x_norm), col = "red", lwd = 2, lty = 2)
+
+# ?rnorm # ? brings the help/doc of a specific function 
+```
+
+
+Let's now use the sample to compute:
+
+* sample mean $\bar x= \displaystyle\frac{1}{n}\sum_{i=1}^nx_i$
+```{r}
+mean(x_norm)
+```
+
+* sample standard deviation $s = \displaystyle\frac{1}{n}\sum_{i=1}^n\big(x_i - \bar x\big)^2 = \displaystyle\frac{1}{n}\sum_{i=1}^n\big(x_i -$ `r mean(x_norm)` $\big)^2$
+```{r}
+sd(x_norm)
+```
+
+### Poison distribution
+A variable $X\sim \textrm{Pois}(\lambda), \lambda\in \{0, 1, 2, \ldots\},$ if:
+$$
+f_X(x) = \frac{\lambda^x\exp(-\lambda)}{x!}
+$$
+
+```{r}
+# ?rpois
+set.seed(123)
+x_pois <- rpois(n = 150, 2.5)
+hist(x_pois, col = "pink")
+abline(v = mean(x_pois), col = "red", lwd = 2, lty = 2)
+```
+
+## Lists
+
+
+## Arrays (vectors - 1D, matrives - 2D, ND)
+### Matrices
+```{r}
+# use dim to reshape a ID to 2D
+v <- 1:9
+dim(v) <- c(3, 3)
+v
+
+# use matrix() to create a matrix
+(M1 <- matrix(1:9, nrow = 3)) # byrow = F by default.
+(M2 <- matrix(1:9, nrow = 3, byrow = T)) # byrow = F by default.
+```
+
+M2 and M1 transpose of each other.
+
+```{r}
+all((t(M2) == M1) == T) # isTRUE
+identical(t(M2), M1)
+```
+
+* Indexing and slicing
+```{r}
+set.seed(123)
+(v <- sample(100, size = 9))
+v[1] # prints the 1st element of v
+v = v[-1] # drops the fist element
+v[length(v)]
+```
+
+```{r}
+v[v == 50]
+v[which(v == 50)]
+```
+
+```{r}
+v
+v > 50
+v[v > 50]
+```
+
+```{r}
+M2[3, -1] # delete the first element of the 3rd row.
+M2[, -1] # drops the first column of M2
+M2[-2, ]
+M2[1,1] # print the element at row 1 and col 1
+M2
+```
+
+
+```{r}
+set.seed(123)
+v[sample(length(v), 3)] <- NA
+v
+
+# use is.na(v) test if a value in v is missing
+v[is.na(v)] <- round(mean(v, na.rm = TRUE), 2)
+```
+
+```{r}
+v
+```
+
+## Operations on matrices
+```{r}
+A <- matrix(c(3, 1, 0, 0, -1, 5, 7, 8, 1), ncol = 3, byrow = TRUE)
+set.seed(123)
+B <- matrix(round(runif(9), 2), ncol = 3) # runif generate a sample from uniform dist.
+A; B
+```
+
+```{r}
+# add
+A + B
+
+# element-wise multiplication
+A * B
+
+# element-wise subtraction
+A - B
+
+# element-wise division
+A / B
+
+# matrix multiplication (dot product)
+A %*% A # not (A^2 which is element-wise exponentiation)
+
+Ainv <- solve(A)
+round(Ainv %*% A, 10)
+```
+
+
+```{r}
+A2 <- matrix(c(1, 1, 1, -1), nrow = 2, byrow = TRUE)
+b <- c(2, 0)
+solve(A2, b)
+```
+
+# Eigen values -vectors
+```{r}
+evA <- eigen(A)
+evA$values
+evA$vectors
+```
+
+## Lists
+```{r}
+mylist <- list(matrix = A, bool = is.matrix(A), data = head(iris, 3))
+# iris is an inbuilt dataset. Use ?iris to check the documentation of iris.
+print(mylist)
+```
+
+```{r}
+mylist$matrix[3, 2]
+
+# write a code that will print the last setosa from mylist.
+n <- nrow(mylist$data)
+p <- ncol(mylist$data)
+n; p
+
+mylist$data[n, p]
+
+mylist$data$Sepal.Width[2]
+```
+
+
+## Data frames
+```{r}
+head(iris)
+?data # help("iris")
+```
+
+## Data Exploration
+```{r}
+# data dimensions
+dim(iris) # iris is already existing (inbuilt data)
+
+paste("Lema", "Logamou")
+cat(paste0("Lema", "Logamou"))
+
+cat(paste0("My iris data has ", dim(iris)[1], " rows and ", dim(iris)[2], " columns.\n"))
+
+cat("My iris data has", nrow(iris), "rows and", ncol(iris), "columns.")
+
+
+# data structure
+str(iris)
+as.character(iris$Species)
+
+# data summary
+summary(iris$Sepal.Length)
+# summary of categorical variable is just like table()
+summary(iris$Species)
+# proportion table
+prop.table(summary(iris$Species)) # table(iris$Species)
+
+iris$new_column <- NA # adding a new_column.
+head(iris)
+View(iris)
+
+iris$new_column <- NULL # drops the new_column
+iris_clean <- iris[, -ncol(iris)] # deletes the last column of iris
+
+names(iris)
+
+iris[-(1:ncol(iris))]
+
+idx_pl <- which(names(iris) == "Petal.Length")
+iris[-idx_pl]
+```
+
+
+### Column(s) selection
+```{r}
+iris[c("Petal.Length", "Species")]
+iris[["Petal.Length"]]
+
+attach(iris)
+Species
+Sepal.Length
+detach(iris)
+
+# names(iris) <- edit(names(iris))
+names(iris) <- c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width", "Spe cies")
+
+attach(iris)
+unique(`Spe cies`)
+detach(iris)
+
+iris[c(1:4)]
+iris[, -3]
+```
+
+### Subsetting or filtering
+```{r}
+# rm(iris)
+(iris_setosa <- iris[iris$Species == "setosa", ])
+
+(sepal_length_setosa <- iris[iris$Species == "setosa", "Sepal.Length"])
+```
+
+Filtering data for Sepal.Length > 3.0 for setosa species.
+```{r}
+iris[iris$Sepal.Length > 3 & iris$Species == "setosa", ]
+```
+
+
+Filtering data for Sepal.Length between 3.0 and 5.0 for all species.
+```{r}
+iris[iris$Sepal.Length >= 3 & iris$Sepal.Length <= 5, ]
+
+# We can also use the subset function to do the filtering in R
+subset1 <- subset(iris, Sepal.Length >= 3 & Sepal.Length <= 5)
+# Later we'll explore the function filter from the tidyverse, dplyr library.
+
+
+# number of obs. in subset1
+nrow(subset1)
+dim(subset1)[1]
+```
+
+Only `r dim(subset1)[1]` flowers have their sepal length between 3 and 5 in the iris data.
+
+## Importing `csv` data in R
+```{r}
+# getwd() # gets the path of the working directory
+# setwd() # sets the working directory. You need to give it a new path.
+dir("../data")
+
+rw_data0 <- read.csv("../data/rwa_admpop_adm1_2023.csv") # if the folder data is in parent folder.
+rw_data1 <- read.csv("./data/rwa_admpop_adm1_2023.csv", skip = 4, na.strings = c("?", "NULL")) # if the folder data is in the current working directory.
+head(rw_data1)
+
+View(rw_data1)
+```
+
+
+## Pipe: |> or %>%
+
+$$f(g(h(x)))$$
+$$x \quad |> h()\quad |> g()\quad |> f()$$
+
+## Import a package in R
+```{r}
+# Install a package in R
+# install.packages("tidyverse") # always comment after installing a package.
+library(dplyr)
+
+set.seed(123)
+v <- rnorm(100)
+v %>% mean() # this is exactly mean(v)
+v %>% mean(na.rm = TRUE) %>% round(2) %>% abs
+```
+
+Using %>% print the structure of the data set we've imported
+```{r}
+rw_data1 %>% str()
+```
+
+## Pivoting
+```{r}
+# install.packages("reshape2")
+library(reshape2)
+library(dplyr)
+# names(rw_data1) %>% edit()
+rw_data_cleaned <- rw_data1 %>% 
+  # dropping some columns such as year, ISO3, ADM0_PCODE
+  select(-year, -ISO3, -ADM0_PCODE, -ADM0_FR, -ADM1_PCODE) %>% 
+  # pivoting from wide format to long format.
+  melt(id.vars = c("ADM1_FR")) %>% 
+  # rename the column ADM1_FR to "Province".
+  rename("Province" = ADM1_FR, Population = value) %>% 
+  filter(!grepl("_TL|T_", variable)) %>% 
+  # creating a new column: Gender
+  mutate(Gender = substr(variable, 1, 1))
+  
+# decode the variable Gender so that F becomes Female and M becomes Male.
+str_sub(rw_data_cleaned$variable, 1, 1)
+```
+
+## Some plots
+### Pie
+```{r}
+# rw_data_cleaned$Population %>% sum()
+table1 <- rw_data_cleaned %>% 
+  group_by(Gender) %>% 
+  reframe(Population = sum(Population)) %>% 
+  mutate(Pct = Population/sum(Population))
+
+pie(table1$Pct, labels = table1$Gender)
+```
+
+## Barplot
+```{r}
+barplot(Population ~ Gender, data = table1)
+
+rw_data_cleaned %>% 
+  ggplot(aes(y = `Age Group`, x = Population, fill = Gender)) + geom_col() + 
+  facet_wrap(~Gender) # facet_grid(~Gender)
+
+# control flow: if, else if, else
+# loops
+# create functions in R
+# Apply functions
+# plotting with ggplot2, ggpubr and plotly
+
+```
+
+## control flow: if, else if, else
+### If statement for two conditions
+```{R}
+condition <- F # the same as condition <- TRUE
+
+if (condition){
+  # executed if condition is true.
+  print("Condition is true.")
+} else {
+  # executed if condition is false
+  print("Condition is false.")
+}
+```
+
+**Exercise:** write an R code to check if a given number is a multiple 5.
+
+
+```{r message=FALSE, warning=FALSE, echo=FALSE, error=FALSE}
+library(tidyverse) # or dplyr if you do not have tidyverse
+x <- readline("Enter a number: ") %>% as.integer()
+class(x) # tell me what's the issue here.
+
+# continue with the if statement.
+if (x %% 5 == 0){
+  # print("x is a multiple of 5.")
+  cat("The number", x, "is a multiple of 5.")
+} else {
+  # print("x is not a multiple of 5.")
+  cat("The number", x, "is not a multiple of 5.")
+}
+
+# cat, print, message, stop are possible echos in R.
+```
+
+### If statement with more than two conditions
+```{r}
+if (condition1){
+  # if condition 1 holds
+} else if (condition2){
+  # if condition 2 holds
+} else {
+  # the last condition or this is where you can use the stop()
+  # function.
+  stop("Stop the code if none of possible conditions is not true.")
+}
+```
+
+**Exercise:** write the code to solve the quadratic equation $$ax^2 + bx + c = 0$$
+
+```{r}
+# inputs <- readline("Enter a, b, and c separated by comma: ")
+# coefs <- strsplit(inputs, split = ",", )
+# print(coefs)
+# coefs <- coefs[[1]] # unlist(coefs)
+# print(coefs)
+# coefs <- as.numeric(coefs)
+a <- as.numeric(readline("Enter a: "))
+b <- as.numeric(readline("Enter b: "))
+c <- as.numeric(readline("Enter c: "))
+
+# calculate d (the discriminent)
+d <- b^2 - 4*a*c
+
+if (a == 0){
+  res <- -c/b
+  stop("This is not a quadratic equation!")
+} else {
+  # here we check for all values of delta.
+  if (d > 0){
+    print("Two distrinct roots.")
+  } else if (d == 0){
+    print("Repeated roots.")
+  } else {
+    print("Complex roots.")
+  }
+}
+```
+
+
+## Loops
+### `for` loop
+
+```{r}
+for (i in 1:5){
+  print(i)
+}
+```
+
+
+**Exercise:** Given a list of numbers from 1 to 50. Print all multiples of 2,3 and 5.
+```{r}
+multpls <- c() # numeric(10)
+
+for (x in 1:50) {
+  if (x %% 3 == 0 | x %% 5 == 0 | x %% 2 == 0) {
+    multpls <- append(multpls, x)
+    # multpls <- c(multpls, x)
+  }
+}
+
+multpls
+```
+
+### `while` loop
+```{r}
+i <- 1
+while (i <= 5) {
+  print(i)
+  i <- i + 1
+}
+```
+
+
+**Exercise:** Set a counter before a while loop to count the number of 5 in a dice rolling game. Stop when get 3 consecutive 5s.
+
+```{bash}
+for ((i=1;i<=5;i++)); do
+echo $i
+done
+```
+```{r}
+counter = 0
+
+while (counter < 3){
+  #roll dice
+  number = sample(6, size =1)
+  
+  if (number == 5){
+    counter = counter + 1
+    cat("Counter is 5. Going to counter ", counter," \n")
+    
+  }else {
+    counter = 0
+    cat("Restarting counter. \n")
+  }
+}
+```
+## Repeat Until
+
+```{r}
+counter = 0
+itters = 20
+repeat{
+  cat("I am going to stop after itterations ",itters," \n")
+  counter =counter + 1
+  
+ #until
+ if (counter == itters){
+   print("Let me stop here.")
+   break
+ }
+}
+
+```
+```{r eval=FALSE}
+myfunc <- finction (param1, param2){
+  #do something with params
+  return(
+    #something
+    )
+}
+```
+**Exercise :**Write a function to generate 500 sample of size 1000 from the normal distribution with population parameter $mu = 60$ and $\sigma^2 = 100$. Compute the mean of each sample. Save all the means in a varriable `means`. Draw the histogram of `means`. Hint you use the `replicate` function to avoid using or loop
+
+```{r}
+func <- function(mu, sigma, n =1000, repl =500){ #default par are n and repl
+ samples <- list()
+ means <- c()
+ 
+ for (i in 1:repl){
+   samples[[i]] <- rnorm(n,mu, sigma)#generating samples
+   means[i] <- mean(samples[[i]])
+ }
+ 
+ #histogram
+ hist(means, main="Histogram Title", xlab = "Means" ,ylab = "Density", col ="cyan", freq = FALSE)
+ return(means)
+}
+
+means <- func(60, 10)
+```
+# Another version
+```{r}
+mu = 60
+n = 10
+func2 <- function(mu, sigma, n, repl){
+  samples <- replicate(repl, rnorm(n, mu, repl))
+  means <- colMeans(samples)
+  dim(samples)
+  hist(means, main="Histogram Title", xlab = "Means" ,ylab = "Density", col ="cyan", freq = FALSE)
+}
+
+func2(60, 10, 1000, 500)
+
+```
+Using ... 
+```{r}
+func <- function(mu, sigma, n =1000, repl =500, ...){ #elipsis ... to show that other varriables may be taken in
+ samples <- list()
+ means <- c()
+ 
+ for (i in 1:repl){
+   samples[[i]] <- rnorm(n,mu, sigma)#generating samples
+   means[i] <- mean(samples[[i]])
+ }
+ 
+ #histogram
+ hist(means, main="Using ...", xlab = "Means",... ,ylab = "Density", freq = FALSE)
+ return(means)
+}
+
+means <- func(60, 10, col ="cyan")
+
+```
+
+##using ggplot
+
+```{r}
+library(ggplot2)
+ggplot(data = NULL, aes(x = means)) +
+  geom_histogram(bins = 20, fill = "maroon") +
+  ggtitle("This is title")+
+  theme_minimal()
+
+```
+```{r}
+means <- function(..., na.rm =TRUE){
+  mean(c(...), na.rm = na.rm)
+}
+x <- c(NA, 7, 8, 9, 4, NA, 5, 6, 8, NA)
+means(x)
+```
+Returns the passes all thearguements in a table
+```{r}
+func3 <- function(...){
+  vect <- c(...)
+  return(vect)
+}
+func3(x =3, g =5.7, v=6)
+```
+
+## Apply functions
+### apply has margin for choosing colums to operate on, 1 for col and 2 for rows as `Margin`
+```{r}
+library(dplyr)
+#iris %>% head()
+apply(iris[-5], MARGIN = 2, FUN = mean) #mean of numeric values
+col_means <- apply(iris %>% select(-Species), MARGIN = 2, FUN = mean) # col means
+row_means <- apply(iris %>% select(-Species), MARGIN = 1, FUN = mean) # row means
+
+iris %>% select(-Species) %>% apply(FUN = mean, 2, na.rm = TRUE)
+```
+#Summary with apply
+```{r}
+#Summary with apply
+iris %>% select(-Species) %>% apply(FUN = summary, 2, na.rm = TRUE)
+line <- "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+line
+#normal summary 
+summary(iris[-5])
+```
+
+## sapply
+### specifically works on columns only
+```{r}
+
+iris %>% sapply(mean, na.rm = TRUE) %>% suppressWarnings()
+line
+iris[-5] %>% sapply(summary)
+```
+## lapply
+```{r}
+iris %>% lapply(summary)
+
+line
+
+iris[-5] %>% lapply(summary)
+```
+## vapply
+```{r}
+
+iris[-5] %>% vapply(summary, FUNC.VALUE = c("Min" = 0, "Q2" = 0,  "Median" = 0, "Mean" = 0  "Max" = 0))
+```
+**Assignment**
+
+$$\text{skewness} = \frac{\displaystyle \sum_{i=1}^n (x_i-\bar x)^3}{(n-1)\times \sigma^2}$$
+with $\displaystyle \sigma = \sqrt{\frac{1}{n-1} \sum_{i=n}^n(x_i-\bar x)^2}$ . Just use the `sd` function. to calculate $\sigma$
+
+## tapply
+```{r}
+my_summary <- function(x, ...){
+  n <- length(x)
+  std <- sd(x, ...)
+  c(Min =min(x, ...),
+    Q1 = quantile(x, ..., probs = o.25),
+    Q2 = median(x, ...),
+    Q3 = quantile(x, ..., probs =0.75),
+    Mean = mean(x, ...),
+    Max = max(x, ...),
+    Skewness = sum((x - mean(x, ...))^3, ...)/((n - 1)*std^3)
+    )
+}
+
+iris %>% select(-Species) %>%  sapply(my_summary)
+```
+
+## mapply
+
+
+
+* Control flow: `if`, `else if`, `else`.
+* Loops: `for`, `while`, `repeat`
+* Apply functions
+* Writing functions in R
+* Plottig: `graphics`, `ggplot2`, `ggpubr`, `plotly`.
+
+
+[Online material](https://rpubs.com/seknewna/IntroR_Lema)
